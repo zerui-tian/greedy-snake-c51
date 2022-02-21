@@ -1,0 +1,5 @@
+".\Objects\STARTUP.obj",
+".\Objects\main.obj",
+".\Objects\eeprom.obj" 
+TO ".\Objects\matrix" 
+PRINT(".\Listings\matrix.m51") RAMSIZE(256) 

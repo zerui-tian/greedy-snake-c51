@@ -1,0 +1,63 @@
+C51 COMPILER V9.60.0.0   MATRIX                                                            03/11/2021 23:51:15 PAGE 1   
+
+
+C51 COMPILER V9.60.0.0, COMPILATION OF MODULE MATRIX
+OBJECT MODULE PLACED IN .\Objects\matrix.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE matrix.c LARGE OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listi
+                    -ngs\matrix.lst) TABS(2) OBJECT(.\Objects\matrix.obj)
+
+line level    source
+
+   1          #include <reg52.h>
+   2          #include <intrins.h>
+   3          #include "matrix.h"
+   4          
+   5          
+   6          
+   7          //void Refresh_Matrix(char row){
+   8          //  int leftCode = 0xFFFF;
+   9          //  int rightCode = 0xFFFF;
+  10          //  int column;
+  11          //  
+  12          //  for(column=0;column<8;column++){
+  13          //    if(GET_VRAM(column+8,row,VRAM_red)){
+  14          //      leftCode &= columnSelectCode[RED][LEFT][column];
+  15          //    }
+  16          //    if(GET_VRAM(column+8,row,VRAM_green)){
+  17          //      leftCode &= columnSelectCode[GREEN][LEFT][column];
+  18          //    }
+  19          //    if(GET_VRAM(column,row,VRAM_red)){
+  20          //      rightCode &= columnSelectCode[RED][RIGHT][column];
+  21          //    }
+  22          //    if(GET_VRAM(column,row,VRAM_green)){
+  23          //      rightCode &= columnSelectCode[GREEN][RIGHT][column];
+  24          //    }
+  25          //  }
+  26          //  
+  27          //  OE_R = 1;
+  28          //  OE_L = 1;
+  29          //  
+  30          //  Load_74HC595_B(rowSelectCode[row]);
+  31          //  Output_74HC595_B();
+  32          //  Load_74HC595_L(0x00);
+  33          //  Output_74HC595_L();
+  34          //  Load_74HC595_R(0x00);
+  35          //  Output_74HC595_R();
+  36          //  
+  37          //  OE_R = 0;
+  38          //  OE_L = 0;
+  39          //}
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   ----    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

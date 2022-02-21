@@ -1,0 +1,94 @@
+C51 COMPILER V9.60.0.0   EEPROM                                                            04/01/2021 10:42:02 PAGE 1   
+
+
+C51 COMPILER V9.60.0.0, COMPILATION OF MODULE EEPROM
+OBJECT MODULE PLACED IN .\Objects\eeprom.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE eeprom.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\ee
+                    -prom.lst) TABS(2) OBJECT(.\Objects\eeprom.obj)
+
+line level    source
+
+   1          #include "eeprom.h"
+   2             
+   3          void ISP_IAP_Enable(void)
+   4          {
+   5   1          EA = 0;
+   6   1          ISP_CONTR = ISP_CONTR & 0x18;  
+   7   1          ISP_CONTR = ISP_CONTR | WaitTime;
+   8   1          ISP_CONTR = ISP_CONTR | 0x80;
+   9   1      }
+  10             
+  11          void ISP_IAP_Disable(void)
+  12          {
+  13   1         ISP_CONTR = ISP_CONTR & 0x7f;
+  14   1           ISP_CMD = 0x00;
+  15   1         ISP_TRIG = 0x00;
+  16   1         EA   =   1;
+  17   1      }
+  18          
+  19          void ISPTrig(void)
+  20          {
+  21   1         ISP_TRIG = 0x46;
+  22   1         ISP_TRIG = 0xb9;
+  23   1         _nop_();
+  24   1      }
+  25           
+  26          
+  27          unsigned char byte_read(unsigned int byte_addr)
+  28          {
+  29   1         unsigned char  dat = 0;
+  30   1       
+  31   1         EA = 0;
+  32   1         ISP_ADDRH = (unsigned char)(byte_addr >> 8);
+  33   1         ISP_ADDRL = (unsigned char)(byte_addr & 0x00ff);
+  34   1           ISP_IAP_Enable();
+  35   1         ISP_CMD   = ISP_CMD & 0xf8;
+  36   1         ISP_CMD   = ISP_CMD | RdCommand;
+  37   1         ISPTrig();
+  38   1         dat = ISP_DATA;
+  39   1           ISP_IAP_Disable();
+  40   1         EA  = 1;
+  41   1         return dat;
+  42   1      }
+  43          
+  44          void byte_write(unsigned int byte_addr,unsigned char Orig_data)
+  45          {
+  46   1         EA  = 0;
+  47   1         ISP_ADDRH = (unsigned char)(byte_addr >> 8);
+  48   1         ISP_ADDRL = (unsigned char)(byte_addr & 0x00ff);
+  49   1         ISP_IAP_Enable();
+  50   1           ISP_CMD  = ISP_CMD & 0xf8;
+  51   1         ISP_CMD  = ISP_CMD | PrgCommand;
+  52   1         ISP_DATA = Orig_data;
+  53   1         ISPTrig();
+  54   1         ISP_IAP_Disable();
+C51 COMPILER V9.60.0.0   EEPROM                                                            04/01/2021 10:42:02 PAGE 2   
+
+  55   1         EA =1;
+  56   1      }
+  57          
+  58          void SectorErase(unsigned int sector_addr)
+  59          {
+  60   1         EA = 0;   
+  61   1         ISP_ADDRH = (unsigned char)(sector_addr >> 8);
+  62   1         ISP_ADDRL = (unsigned char)(sector_addr & 0x00ff);
+  63   1         ISP_IAP_Enable(); 
+  64   1           ISP_CMD = ISP_CMD & 0xf8;
+  65   1         ISP_CMD = ISP_CMD | EraseCommand;
+  66   1         ISPTrig();
+  67   1         ISP_IAP_Disable();
+  68   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    114    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
