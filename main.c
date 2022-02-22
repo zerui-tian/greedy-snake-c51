@@ -23,6 +23,7 @@ sbit BUTTON_DOWN = P3^4;
 sbit BUTTON_LEFT = P3^7;
 sbit BUTTON_RIGHT = P3^3;
 sbit BUTTON_MIDDLE = P3^5;
+sbit BUTTON_HIDDEN = P0^5;
 
 #define RED 0
 #define GREEN 1
@@ -196,7 +197,6 @@ void refresh(){
 	char i,j;
 	refreshCounter_buffer=refreshCounter+1;
 	refreshCounter_buffer%=2;
-	isRefreshing = 1;
 	for(i=0;i<8;i++){
 		leftColSelectCode[refreshCounter_buffer][i] = 0xFFFF;
 		rightColSelectCode[refreshCounter_buffer][i] = 0xFFFF;
@@ -207,6 +207,7 @@ void refresh(){
 			rightColSelectCode[refreshCounter_buffer][i]&= (vram[i][j+8]&0x02)!=0? columnSelectCode[refreshCounter_buffer][RIGHT][j]: 0xFFFF;
 		}
 	}
+	isRefreshing = 1;
 	refreshCounter=refreshCounter_buffer;
 	isRefreshing = 0;
 }
@@ -401,6 +402,14 @@ void main(void){
 	initializer();
 	//wait for button
 	while(BUTTON_MIDDLE){
+		if(BUTTON_HIDDEN==0){
+			SectorErase(0x2000);
+			byte_write(0x2001,0);
+			byte_write(0x2002,0);
+			byte_write(0x2003,0);
+			byte_write(0x2004,0);
+			highestPoint=0;
+		}
 	}
 	//reset nixie
 	for(i=0;i<4;i++){
