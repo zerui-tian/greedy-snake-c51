@@ -270,22 +270,27 @@ void Score(){
 	}
 }
 char Creep(){
+	char pixelOnNextPosition;
+	
 	nextOrientation = (orientation+forwardDirection)&0x03;
 	currentPosition = snake[(ptrTail+length-1)%AREA_SIZE];
 	nextPosition = currentPosition+forwardCode[nextOrientation];
 	currentX = GETX(currentPosition);
 	currentY = GETY(currentPosition);
-	biteSelf = VRAM(GETX(nextPosition),GETY(nextPosition));
+	pixelOnNextPosition = VRAM(GETX(nextPosition),GETY(nextPosition));
+	
 	hitWall = 
 		(currentX==0				&&	nextOrientation==TOWARD_WEST) ||
 		(currentX==COLUMN_SIZE-1	&&	nextOrientation==TOWARD_EAST) ||
 		(currentY==0				&&	nextOrientation==TOWARD_NORTH) ||
 		(currentY==ROW_SIZE-1		&&	nextOrientation==TOWARD_SOUTH);
-	if(nextPosition==food){
-		Score();
-	}
-	else if(biteSelf||hitWall){
+	
+	biteSelf = pixelOnNextPosition==0x01 || pixelOnNextPosition==0x02;
+	if(biteSelf||hitWall){
 		return DEAD;
+	}
+	else if(nextPosition==food){
+		Score();
 	}
 	else{
 		AddHead(nextPosition);
@@ -440,20 +445,17 @@ void main(void){
 			EX0=1;
 		}
 		else if(state==ALIVE){
-			if(BUTTON_UP==0){
+			if(state==ALIVE&&BUTTON_UP==0){
 				state = TURN_NORTH;
 			}
-			else if(BUTTON_DOWN==0){
+			else if(state==ALIVE&&BUTTON_DOWN==0){
 				state = TURN_SOUTH;
 			}
-			else if(BUTTON_LEFT==0){
+			else if(state==ALIVE&&BUTTON_LEFT==0){
 				state = TURN_WEST;
 			}
-			else if(BUTTON_RIGHT==0){
+			else if(state==ALIVE&&BUTTON_RIGHT==0){
 				state = TURN_EAST;
-			}
-			else{
-				state = ALIVE;
 			}
 		}
 		else{

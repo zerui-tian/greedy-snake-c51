@@ -1,4 +1,4 @@
-C51 COMPILER V9.60.0.0   MAIN                                                              02/22/2022 17:58:21 PAGE 1   
+C51 COMPILER V9.60.0.0   MAIN                                                              02/22/2022 22:54:37 PAGE 1   
 
 
 C51 COMPILER V9.60.0.0, COMPILATION OF MODULE MAIN
@@ -62,7 +62,7 @@ line level    source
   52          #define TURN_LEFT 0xFF
   53          #define TURN_RIGHT 0x01
   54          #define GO_STRAIGHT 0x00
-C51 COMPILER V9.60.0.0   MAIN                                                              02/22/2022 17:58:21 PAGE 2   
+C51 COMPILER V9.60.0.0   MAIN                                                              02/22/2022 22:54:37 PAGE 2   
 
   55          char forwardDirection;
   56          
@@ -126,7 +126,7 @@ line level    source
  112           * 6      7      8      5      4      3      2      1
  113           */
  114          int code rowSelectCode[] = {0x0180,0x0204,0x2002,0x4001,0x8008,0x1010,0x0820,0x0440};
-C51 COMPILER V9.60.0.0   MAIN                                                              02/22/2022 17:58:21 PAGE 3   
+C51 COMPILER V9.60.0.0   MAIN                                                              02/22/2022 22:54:37 PAGE 3   
 
  115          int code columnSelectCode[2][2][ROW_SIZE] = {
  116            {
@@ -190,7 +190,7 @@ line level    source
  174   2          SER_L=dat_L&0x8000;
  175   2          dat_L=dat_L<<1;
  176   2          SER_R=dat_R&0x8000;
-C51 COMPILER V9.60.0.0   MAIN                                                              02/22/2022 17:58:21 PAGE 4   
+C51 COMPILER V9.60.0.0   MAIN                                                              02/22/2022 22:54:37 PAGE 4   
 
  177   2          dat_R=dat_R<<1;
  178   2         
@@ -254,7 +254,7 @@ line level    source
  232          
  233          /************************************************
  234           *              logic and actions               *
-C51 COMPILER V9.60.0.0   MAIN                                                              02/22/2022 17:58:21 PAGE 5   
+C51 COMPILER V9.60.0.0   MAIN                                                              02/22/2022 22:54:37 PAGE 5   
 
  235           ************************************************/
  236          void SetFood(){
@@ -294,243 +294,245 @@ line level    source
  270   2        }
  271   1      }
  272          char Creep(){
- 273   1        nextOrientation = (orientation+forwardDirection)&0x03;
- 274   1        currentPosition = snake[(ptrTail+length-1)%AREA_SIZE];
- 275   1        nextPosition = currentPosition+forwardCode[nextOrientation];
- 276   1        currentX = GETX(currentPosition);
- 277   1        currentY = GETY(currentPosition);
- 278   1        biteSelf = VRAM(GETX(nextPosition),GETY(nextPosition));
- 279   1        hitWall = 
- 280   1          (currentX==0        &&  nextOrientation==TOWARD_WEST) ||
- 281   1          (currentX==COLUMN_SIZE-1  &&  nextOrientation==TOWARD_EAST) ||
- 282   1          (currentY==0        &&  nextOrientation==TOWARD_NORTH) ||
- 283   1          (currentY==ROW_SIZE-1   &&  nextOrientation==TOWARD_SOUTH);
- 284   1        if(nextPosition==food){
- 285   2          Score();
- 286   2        }
- 287   1        else if(biteSelf||hitWall){
- 288   2          return DEAD;
- 289   2        }
- 290   1        else{
- 291   2          AddHead(nextPosition);
- 292   2          DeleteTail();
- 293   2        }
- 294   1        orientation = nextOrientation;
- 295   1        return ALIVE;
- 296   1      }
-C51 COMPILER V9.60.0.0   MAIN                                                              02/22/2022 17:58:21 PAGE 6   
+ 273   1        char pixelOnNextPosition;
+ 274   1        
+ 275   1        nextOrientation = (orientation+forwardDirection)&0x03;
+ 276   1        currentPosition = snake[(ptrTail+length-1)%AREA_SIZE];
+ 277   1        nextPosition = currentPosition+forwardCode[nextOrientation];
+ 278   1        currentX = GETX(currentPosition);
+ 279   1        currentY = GETY(currentPosition);
+ 280   1        pixelOnNextPosition = VRAM(GETX(nextPosition),GETY(nextPosition));
+ 281   1        
+ 282   1        hitWall = 
+ 283   1          (currentX==0        &&  nextOrientation==TOWARD_WEST) ||
+ 284   1          (currentX==COLUMN_SIZE-1  &&  nextOrientation==TOWARD_EAST) ||
+ 285   1          (currentY==0        &&  nextOrientation==TOWARD_NORTH) ||
+ 286   1          (currentY==ROW_SIZE-1   &&  nextOrientation==TOWARD_SOUTH);
+ 287   1        
+ 288   1        biteSelf = pixelOnNextPosition==0x01 || pixelOnNextPosition==0x02;
+ 289   1        if(biteSelf||hitWall){
+ 290   2          return DEAD;
+ 291   2        }
+ 292   1        else if(nextPosition==food){
+ 293   2          Score();
+ 294   2        }
+ 295   1        else{
+ 296   2          AddHead(nextPosition);
+C51 COMPILER V9.60.0.0   MAIN                                                              02/22/2022 22:54:37 PAGE 6   
 
- 297          char FSM(){
- 298   1        switch(state){
- 299   2          case ALIVE:
- 300   2            forwardDirection=GO_STRAIGHT;
- 301   2            break;
- 302   2          case TURN_NORTH:
- 303   2            if(orientation==TOWARD_WEST)    {forwardDirection=TURN_RIGHT;}
- 304   2            else if(orientation==TOWARD_EAST) {forwardDirection=TURN_LEFT;}
- 305   2            else              {forwardDirection=GO_STRAIGHT;}
+ 297   2          DeleteTail();
+ 298   2        }
+ 299   1        orientation = nextOrientation;
+ 300   1        return ALIVE;
+ 301   1      }
+ 302          char FSM(){
+ 303   1        switch(state){
+ 304   2          case ALIVE:
+ 305   2            forwardDirection=GO_STRAIGHT;
  306   2            break;
- 307   2          case TURN_EAST:
- 308   2            if(orientation==TOWARD_NORTH)   {forwardDirection=TURN_RIGHT;}
- 309   2            else if(orientation==TOWARD_SOUTH){forwardDirection=TURN_LEFT;}
+ 307   2          case TURN_NORTH:
+ 308   2            if(orientation==TOWARD_WEST)    {forwardDirection=TURN_RIGHT;}
+ 309   2            else if(orientation==TOWARD_EAST) {forwardDirection=TURN_LEFT;}
  310   2            else              {forwardDirection=GO_STRAIGHT;}
  311   2            break;
- 312   2          case TURN_SOUTH:
- 313   2            if(orientation==TOWARD_EAST)    {forwardDirection=TURN_RIGHT;}
- 314   2            else if(orientation==TOWARD_WEST) {forwardDirection=TURN_LEFT;}
+ 312   2          case TURN_EAST:
+ 313   2            if(orientation==TOWARD_NORTH)   {forwardDirection=TURN_RIGHT;}
+ 314   2            else if(orientation==TOWARD_SOUTH){forwardDirection=TURN_LEFT;}
  315   2            else              {forwardDirection=GO_STRAIGHT;}
  316   2            break;
- 317   2          case TURN_WEST:
- 318   2            if(orientation==TOWARD_SOUTH)   {forwardDirection=TURN_RIGHT;}
- 319   2            else if(orientation==TOWARD_NORTH){forwardDirection=TURN_LEFT;}
+ 317   2          case TURN_SOUTH:
+ 318   2            if(orientation==TOWARD_EAST)    {forwardDirection=TURN_RIGHT;}
+ 319   2            else if(orientation==TOWARD_WEST) {forwardDirection=TURN_LEFT;}
  320   2            else              {forwardDirection=GO_STRAIGHT;}
  321   2            break;
- 322   2          default:
- 323   2            forwardDirection=GO_STRAIGHT;
- 324   2            break;
- 325   2        }
- 326   1        return Creep();
- 327   1      }
- 328          void restart(){
- 329   1        char i,j;
- 330   1        for(i=0;i<8;i++){
- 331   2          for(j=0;j<16;j++){
- 332   3            vram[i][j]=0;
- 333   3          }
- 334   2        }
- 335   1        
- 336   1        ptrHead = 0;
- 337   1        ptrTail = 0;
- 338   1        length = 0;
- 339   1        interruptCounter=0;
- 340   1        refreshCounter=0;
- 341   1        colorfulLight=0;
- 342   1        point=0;
- 343   1        isBuzzing=0;
- 344   1        
- 345   1        AddHead(0x00);
- 346   1        AddHead(0x01);
- 347   1        AddHead(0x02);
- 348   1        orientation = TOWARD_EAST;
- 349   1        forwardDirection = GO_STRAIGHT;
- 350   1        state = ALIVE;
- 351   1        
- 352   1        SetFood();
- 353   1        refresh();
- 354   1      }
- 355          /************************************************
- 356           *                 Initializer                  *
- 357           ************************************************/
- 358          void initializer(){
-C51 COMPILER V9.60.0.0   MAIN                                                              02/22/2022 17:58:21 PAGE 7   
+ 322   2          case TURN_WEST:
+ 323   2            if(orientation==TOWARD_SOUTH)   {forwardDirection=TURN_RIGHT;}
+ 324   2            else if(orientation==TOWARD_NORTH){forwardDirection=TURN_LEFT;}
+ 325   2            else              {forwardDirection=GO_STRAIGHT;}
+ 326   2            break;
+ 327   2          default:
+ 328   2            forwardDirection=GO_STRAIGHT;
+ 329   2            break;
+ 330   2        }
+ 331   1        return Creep();
+ 332   1      }
+ 333          void restart(){
+ 334   1        char i,j;
+ 335   1        for(i=0;i<8;i++){
+ 336   2          for(j=0;j<16;j++){
+ 337   3            vram[i][j]=0;
+ 338   3          }
+ 339   2        }
+ 340   1        
+ 341   1        ptrHead = 0;
+ 342   1        ptrTail = 0;
+ 343   1        length = 0;
+ 344   1        interruptCounter=0;
+ 345   1        refreshCounter=0;
+ 346   1        colorfulLight=0;
+ 347   1        point=0;
+ 348   1        isBuzzing=0;
+ 349   1        
+ 350   1        AddHead(0x00);
+ 351   1        AddHead(0x01);
+ 352   1        AddHead(0x02);
+ 353   1        orientation = TOWARD_EAST;
+ 354   1        forwardDirection = GO_STRAIGHT;
+ 355   1        state = ALIVE;
+ 356   1        
+ 357   1        SetFood();
+ 358   1        refresh();
+C51 COMPILER V9.60.0.0   MAIN                                                              02/22/2022 22:54:37 PAGE 7   
 
- 359   1        char i;
- 360   1        TMOD=0x21;//Timer1 8bit_auto_load Timer0 16bit_normal
- 361   1        
- 362   1        TH0=SCAN_PERIOD_H;
- 363   1        TL0=SCAN_PERIOD_L;
- 364   1      
- 365   1        TH1=0x00;
- 366   1        TL1=0x00;
- 367   1        
- 368   1        //Eable timers
- 369   1        TR0=1;
- 370   1        TR1=1;
- 371   1      
+ 359   1      }
+ 360          /************************************************
+ 361           *                 Initializer                  *
+ 362           ************************************************/
+ 363          void initializer(){
+ 364   1        char i;
+ 365   1        TMOD=0x21;//Timer1 8bit_auto_load Timer0 16bit_normal
+ 366   1        
+ 367   1        TH0=SCAN_PERIOD_H;
+ 368   1        TL0=SCAN_PERIOD_L;
+ 369   1      
+ 370   1        TH1=0x00;
+ 371   1        TL1=0x00;
  372   1        
- 373   1        //External interruption 0 is triggered by negative edge
- 374   1        IT0=1;
- 375   1        
- 376   1        IP=0x02;
+ 373   1        //Eable timers
+ 374   1        TR0=1;
+ 375   1        TR1=1;
+ 376   1      
  377   1        
- 378   1        highestPoint=0;
- 379   1        //read highest point
- 380   1        digits[0] = byte_read(0x2001);
- 381   1        digits[1] = byte_read(0x2002);
- 382   1        digits[2] = byte_read(0x2003);
- 383   1        digits[3] = byte_read(0x2004);
- 384   1        for(i=0;i<3;i++){
- 385   2          highestPoint += digits[3-i];
- 386   2          highestPoint *= 10;
- 387   2        }
- 388   1        highestPoint += digits[0];
- 389   1        
- 390   1        restart();
- 391   1        
- 392   1        //Only eable timer0 IRQ, timer1 functions as a random number generator
- 393   1        ET0=1;
- 394   1        ET1=0;
- 395   1      
- 396   1        //Interrupt switch
- 397   1        EA=1;
- 398   1      }
- 399          
- 400          void main(void){
- 401   1        char i;
- 402   1        initializer();
- 403   1        //wait for button
- 404   1        while(BUTTON_MIDDLE){
- 405   2          if(BUTTON_HIDDEN==0){
- 406   3            SectorErase(0x2000);
- 407   3            byte_write(0x2001,0);
- 408   3            byte_write(0x2002,0);
- 409   3            byte_write(0x2003,0);
- 410   3            byte_write(0x2004,0);
- 411   3            highestPoint=0;
- 412   3          }
- 413   2        }
- 414   1        //reset nixie
- 415   1        for(i=0;i<4;i++){
- 416   2          digits[i]=0;
- 417   2        }
- 418   1        EX0=1;
- 419   1        while(1){
- 420   2          if(state==DEAD){
-C51 COMPILER V9.60.0.0   MAIN                                                              02/22/2022 17:58:21 PAGE 8   
+ 378   1        //External interruption 0 is triggered by negative edge
+ 379   1        IT0=1;
+ 380   1        
+ 381   1        IP=0x02;
+ 382   1        
+ 383   1        highestPoint=0;
+ 384   1        //read highest point
+ 385   1        digits[0] = byte_read(0x2001);
+ 386   1        digits[1] = byte_read(0x2002);
+ 387   1        digits[2] = byte_read(0x2003);
+ 388   1        digits[3] = byte_read(0x2004);
+ 389   1        for(i=0;i<3;i++){
+ 390   2          highestPoint += digits[3-i];
+ 391   2          highestPoint *= 10;
+ 392   2        }
+ 393   1        highestPoint += digits[0];
+ 394   1        
+ 395   1        restart();
+ 396   1        
+ 397   1        //Only eable timer0 IRQ, timer1 functions as a random number generator
+ 398   1        ET0=1;
+ 399   1        ET1=0;
+ 400   1      
+ 401   1        //Interrupt switch
+ 402   1        EA=1;
+ 403   1      }
+ 404          
+ 405          void main(void){
+ 406   1        char i;
+ 407   1        initializer();
+ 408   1        //wait for button
+ 409   1        while(BUTTON_MIDDLE){
+ 410   2          if(BUTTON_HIDDEN==0){
+ 411   3            SectorErase(0x2000);
+ 412   3            byte_write(0x2001,0);
+ 413   3            byte_write(0x2002,0);
+ 414   3            byte_write(0x2003,0);
+ 415   3            byte_write(0x2004,0);
+ 416   3            highestPoint=0;
+ 417   3          }
+ 418   2        }
+ 419   1        //reset nixie
+ 420   1        for(i=0;i<4;i++){
+C51 COMPILER V9.60.0.0   MAIN                                                              02/22/2022 22:54:37 PAGE 8   
 
- 421   3            EX0=0;
- 422   3            if(point>=highestPoint){
- 423   4              SectorErase(0x2000);
- 424   4              byte_write(0x2001,digits[0]);
- 425   4              byte_write(0x2002,digits[1]);
- 426   4              byte_write(0x2003,digits[2]);
- 427   4              byte_write(0x2004,digits[3]);
- 428   4              highestPoint=point;
- 429   4              colorfulLight=1;
- 430   4            }
- 431   3            else{
- 432   4              colorfulLight=0;
- 433   4            }
- 434   3            while(BUTTON_MIDDLE){
+ 421   2          digits[i]=0;
+ 422   2        }
+ 423   1        EX0=1;
+ 424   1        while(1){
+ 425   2          if(state==DEAD){
+ 426   3            EX0=0;
+ 427   3            if(point>=highestPoint){
+ 428   4              SectorErase(0x2000);
+ 429   4              byte_write(0x2001,digits[0]);
+ 430   4              byte_write(0x2002,digits[1]);
+ 431   4              byte_write(0x2003,digits[2]);
+ 432   4              byte_write(0x2004,digits[3]);
+ 433   4              highestPoint=point;
+ 434   4              colorfulLight=1;
  435   4            }
- 436   3            restart();
- 437   3            for(i=0;i<4;i++){
- 438   4              digits[i]=0;
- 439   4            }
- 440   3            EX0=1;
- 441   3          }
- 442   2          else if(state==ALIVE){
- 443   3            if(BUTTON_UP==0){
- 444   4              state = TURN_NORTH;
- 445   4            }
- 446   3            else if(BUTTON_DOWN==0){
- 447   4              state = TURN_SOUTH;
- 448   4            }
- 449   3            else if(BUTTON_LEFT==0){
- 450   4              state = TURN_WEST;
- 451   4            }
- 452   3            else if(BUTTON_RIGHT==0){
- 453   4              state = TURN_EAST;
- 454   4            }
- 455   3            else{
- 456   4              state = ALIVE;
- 457   4            }
- 458   3          }
- 459   2          else{
+ 436   3            else{
+ 437   4              colorfulLight=0;
+ 438   4            }
+ 439   3            while(BUTTON_MIDDLE){
+ 440   4            }
+ 441   3            restart();
+ 442   3            for(i=0;i<4;i++){
+ 443   4              digits[i]=0;
+ 444   4            }
+ 445   3            EX0=1;
+ 446   3          }
+ 447   2          else if(state==ALIVE){
+ 448   3            if(state==ALIVE&&BUTTON_UP==0){
+ 449   4              state = TURN_NORTH;
+ 450   4            }
+ 451   3            else if(state==ALIVE&&BUTTON_DOWN==0){
+ 452   4              state = TURN_SOUTH;
+ 453   4            }
+ 454   3            else if(state==ALIVE&&BUTTON_LEFT==0){
+ 455   4              state = TURN_WEST;
+ 456   4            }
+ 457   3            else if(state==ALIVE&&BUTTON_RIGHT==0){
+ 458   4              state = TURN_EAST;
+ 459   4            }
  460   3          }
- 461   2        }
- 462   1      }
- 463          void EX0_IRQ(void) interrupt 0{
- 464   1        state=FSM();
- 465   1        if(state!=DEAD){
- 466   2          refresh();
- 467   2        }
- 468   1      }
- 469          void Timer0_IRQ(void) interrupt 1{
- 470   1        interruptCounter++;
- 471   1        if(isBuzzing){
- 472   2          isBuzzing=((buzzCounter++)<=0x1F);
- 473   2        }
- 474   1        digitSelect = interruptCounter&0x03;
- 475   1        scanner = interruptCounter&0x07;
- 476   1        buzz = interruptCounter&(isBuzzing?0x01:0x00);
- 477   1        
- 478   1        
- 479   1        NEXIE_PORT = 
- 480   1          digitSelectCode[digitSelect] |
- 481   1          numberCode[digits[digitSelect]] |
- 482   1          colorfulLightCode[colorfulLight] |
-C51 COMPILER V9.60.0.0   MAIN                                                              02/22/2022 17:58:21 PAGE 9   
+ 461   2          else{
+ 462   3          }
+ 463   2        }
+ 464   1      }
+ 465          void EX0_IRQ(void) interrupt 0{
+ 466   1        state=FSM();
+ 467   1        if(state!=DEAD){
+ 468   2          refresh();
+ 469   2        }
+ 470   1      }
+ 471          void Timer0_IRQ(void) interrupt 1{
+ 472   1        interruptCounter++;
+ 473   1        if(isBuzzing){
+ 474   2          isBuzzing=((buzzCounter++)<=0x1F);
+ 475   2        }
+ 476   1        digitSelect = interruptCounter&0x03;
+ 477   1        scanner = interruptCounter&0x07;
+ 478   1        buzz = interruptCounter&(isBuzzing?0x01:0x00);
+ 479   1        
+ 480   1        
+ 481   1        NEXIE_PORT = 
+ 482   1          digitSelectCode[digitSelect] |
+C51 COMPILER V9.60.0.0   MAIN                                                              02/22/2022 22:54:37 PAGE 9   
 
- 483   1          buzzerCode[buzz];
- 484   1        
- 485   1        if(!isRefreshing){
- 486   2          OE_R = 1;
- 487   2          OE_L = 1;
- 488   2          Load_74HC595(rowSelectCode[scanner],leftColSelectCode[refreshCounter][scanner],rightColSelectCode[refres
+ 483   1          numberCode[digits[digitSelect]] |
+ 484   1          colorfulLightCode[colorfulLight] |
+ 485   1          buzzerCode[buzz];
+ 486   1        
+ 487   1        if(!isRefreshing){
+ 488   2          OE_R = 1;
+ 489   2          OE_L = 1;
+ 490   2          Load_74HC595(rowSelectCode[scanner],leftColSelectCode[refreshCounter][scanner],rightColSelectCode[refres
              -hCounter][scanner]);
- 489   2          Output_74HC595();
- 490   2          OE_R = 0;
- 491   2          OE_L = 0;
- 492   2        }
- 493   1        
- 494   1        TH0=SCAN_PERIOD_H;
- 495   1        TL0=SCAN_PERIOD_L;
- 496   1      }
+ 491   2          Output_74HC595();
+ 492   2          OE_R = 0;
+ 493   2          OE_L = 0;
+ 494   2        }
+ 495   1        
+ 496   1        TH0=SCAN_PERIOD_H;
+ 497   1        TL0=SCAN_PERIOD_L;
+ 498   1      }
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =   2613    ----
+   CODE SIZE        =   2651    ----
    CONSTANT SIZE    =    103    ----
    XDATA SIZE       =    256    ----
    PDATA SIZE       =   ----    ----
